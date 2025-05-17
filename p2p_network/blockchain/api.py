@@ -22,11 +22,9 @@ def add_review_record():
                     'message': f'Missing required field: {field}'
                 }), 400
         
-        # Add timestamp if not provided
         if 'timestamp' not in data:
             data['timestamp'] = time.time()
             
-        # Create a new block with this review record
         new_block = blockchain.add_block(data)
         
         return jsonify({
