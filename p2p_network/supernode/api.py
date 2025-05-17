@@ -1,3 +1,4 @@
+# p2p_network/supernode/api.py
 """
 REST API for supernode
 """
@@ -10,10 +11,14 @@ from ..common.message_formats import (
     ResultSubmission, Heartbeat
 )
 from .supernode import SuperNode
+from ..blockchain.api import blockchain_api
 
 
 app = Flask(__name__)
 supernode = SuperNode()
+
+# Register the blockchain API blueprint
+app.register_blueprint(blockchain_api, url_prefix='/blockchain')
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -105,6 +110,26 @@ def submit_results():
         submission = ResultSubmission.from_dict(data)
         success = supernode.submit_results(submission)
         
+        # Add to blockchain
+        if success:
+            # Create a record for the blockchain
+            blockchain_record = {
+                "review_id": submission.task_id,
+                "commit_id": submission.results.get("commit_id", "unknown"),
+                "reviewer": submission.node_id,
+                "status": "COMPLETED",
+                "timestamp": datetime.now().timestamp(),
+                "results": submission.results
+            }
+            
+            # Add record to blockchain asynchronously
+            try:
+                from ..blockchain.blockchain import blockchain
+                blockchain.add_block(blockchain_record)
+                logger.info(f"Added result to blockchain for task {submission.task_id}")
+            except Exception as blockchain_error:
+                logger.error(f"Error adding to blockchain: {blockchain_error}")
+        
         if success:
             return jsonify({
                 'status': 'success',
@@ -131,10 +156,25 @@ def get_status():
         node_status = supernode.get_node_status()
         task_status = supernode.get_task_status()
         
+        # Add blockchain status
+        blockchain_status = {
+            "enabled": True,
+            "blocks": 0
+        }
+        
+        try:
+            from ..blockchain.blockchain import blockchain
+            blockchain_status["blocks"] = len(blockchain.chain)
+            blockchain_status["is_valid"] = blockchain.is_chain_valid()
+        except Exception as blockchain_error:
+            logger.error(f"Error getting blockchain status: {blockchain_error}")
+            blockchain_status["enabled"] = False
+        
         return jsonify({
             'status': 'success',
             'nodes': node_status,
             'tasks': task_status,
+            'blockchain': blockchain_status,
             'timestamp': datetime.now().isoformat()
         }), 200
         
@@ -165,6 +205,26 @@ def create_task():
             analysis_type=data['analysis_type'],
             deadline=data['deadline']
         )
+        
+        # Add task creation to blockchain
+        try:
+            from ..blockchain.blockchain import blockchain
+            blockchain_record = {
+                "review_id": task.task_id,
+                "commit_id": data.get("commit_id", "unknown"),
+                "reviewer": "supernode",
+                "status": "CREATED",
+                "timestamp": datetime.now().timestamp(),
+                "task_details": {
+                    "code_url": data['code_url'],
+                    "analysis_type": data['analysis_type'],
+                    "deadline": data['deadline']
+                }
+            }
+            blockchain.add_block(blockchain_record)
+            logger.info(f"Added task creation to blockchain for {task.task_id}")
+        except Exception as blockchain_error:
+            logger.error(f"Error adding to blockchain: {blockchain_error}")
         
         return jsonify({
             'status': 'success',
