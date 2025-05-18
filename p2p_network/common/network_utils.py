@@ -12,8 +12,6 @@ logger = logging.getLogger(__name__)
 
 
 class NetworkClient:
-    """HTTP client with retry logic for P2P communication"""
-    
     def __init__(self, timeout: int = 10, max_retries: int = 3):
         self.timeout = timeout
         self.max_retries = max_retries
@@ -21,7 +19,6 @@ class NetworkClient:
     
     def post(self, url: str, json_data: Dict[str, Any], 
              headers: Optional[Dict[str, str]] = None) -> Optional[requests.Response]:
-        """POST request with retry logic"""
         headers = headers or {'Content-Type': 'application/json'}
         
         for attempt in range(self.max_retries):
@@ -38,7 +35,7 @@ class NetworkClient:
             except Timeout:
                 logger.warning(f"Timeout on attempt {attempt + 1} for {url}")
                 if attempt < self.max_retries - 1:
-                    time.sleep(2 ** attempt)  # Exponential backoff
+                    time.sleep(2 ** attempt)  
                     
             except ConnectionError:
                 logger.error(f"Connection error for {url}")
@@ -54,7 +51,6 @@ class NetworkClient:
     
     def get(self, url: str, params: Optional[Dict[str, str]] = None,
             headers: Optional[Dict[str, str]] = None) -> Optional[requests.Response]:
-        """GET request with retry logic"""
         headers = headers or {}
         
         for attempt in range(self.max_retries):
@@ -87,7 +83,6 @@ class NetworkClient:
 
 
 def validate_ip_address(ip: str) -> bool:
-    """Validate IP address format"""
     parts = ip.split('.')
     if len(parts) != 4:
         return False
