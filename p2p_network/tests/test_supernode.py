@@ -7,7 +7,6 @@ import sys
 import os
 from datetime import datetime, timedelta
 
-# Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from p2p_network.common.message_formats import (
@@ -21,7 +20,6 @@ class TestSuperNode(unittest.TestCase):
         self.supernode = SuperNode()
         
     def test_node_registration(self):
-        """Test node registration"""
         registration = NodeRegistration(
             node_id="test-node-1",
             ip_address="192.168.1.100",
@@ -35,8 +33,6 @@ class TestSuperNode(unittest.TestCase):
         self.assertIn("test-node-1", self.supernode.registered_nodes)
         
     def test_heartbeat_handling(self):
-        """Test heartbeat processing"""
-        # First register a node
         registration = NodeRegistration(
             node_id="test-node-2",
             ip_address="192.168.1.101",
@@ -63,7 +59,6 @@ class TestSuperNode(unittest.TestCase):
         self.assertTrue(node.is_healthy())
         
     def test_task_creation(self):
-        """Test task creation"""
         task = self.supernode.create_task(
             code_url="https://example.com/code.git",
             analysis_type="security_scan",
@@ -75,8 +70,6 @@ class TestSuperNode(unittest.TestCase):
         self.assertIn(task.task_id, self.supernode.pending_tasks)
         
     def test_task_assignment(self):
-        """Test task assignment to nodes"""
-        # Register a node
         registration = NodeRegistration(
             node_id="test-node-3",
             ip_address="192.168.1.102",
@@ -93,14 +86,12 @@ class TestSuperNode(unittest.TestCase):
             deadline=(datetime.now() + timedelta(hours=1)).isoformat()
         )
         
-        # Get available tasks for the node
         tasks = self.supernode.get_available_tasks("test-node-3")
         
         self.assertEqual(len(tasks), 1)
         self.assertEqual(tasks[0].task_id, task.task_id)
         self.assertEqual(tasks[0].assigned_node, "test-node-3")
         
-        # Check task status
         assigned_task = self.supernode.pending_tasks[task.task_id]
         self.assertEqual(assigned_task.status, "assigned")
         self.assertEqual(assigned_task.assigned_node, "test-node-3")
