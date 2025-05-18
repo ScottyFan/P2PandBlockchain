@@ -56,7 +56,6 @@ class SuperNode:
     
     def create_task(self, code_url: str, analysis_type: str, 
                    deadline: str) -> Task:
-        """Create a new analysis task"""
         task_id = str(uuid.uuid4())
         task = Task(
             task_id=task_id,
@@ -67,14 +66,12 @@ class SuperNode:
         
         with self.task_lock:
             self.pending_tasks[task_id] = task
-            # Add to priority queue (using deadline as priority)
             self.task_queue.put((deadline, task_id))
             
         logger.info(f"Created task: {task_id}")
         return task
     
     def get_available_tasks(self, node_id: str, max_tasks: int = 3) -> List[TaskAssignment]:
-        """Get available tasks for a specific node"""
         with self.node_lock:
             if node_id not in self.registered_nodes:
                 logger.warning(f"Unknown node requesting tasks: {node_id}")
@@ -87,21 +84,16 @@ class SuperNode:
         
         available_tasks = []
         with self.task_lock:
-            # Check for unassigned tasks that match node capabilities
             temp_queue = []
-            
-            # Only take tasks if node isn't already busy
             if node.current_load >= 1.0:
                 logger.debug(f"Node {node_id} is busy (load: {node.current_load})")
                 return []
             
-            # Updated: use max_tasks parameter instead of hardcoded 3
             while not self.task_queue.empty() and len(available_tasks) < max_tasks:
                 deadline, task_id = self.task_queue.get()
                 task = self.pending_tasks.get(task_id)
                 
                 if task and task.status == "pending":
-                    # Check if node can handle this task
                     if self._can_node_handle_task(node, task):
                         task.assign_to_node(node_id)
                         task_assignment = TaskAssignment(
@@ -116,14 +108,12 @@ class SuperNode:
                     else:
                         temp_queue.append((deadline, task_id))
                         
-            # Put back tasks that couldn't be assigned
             for item in temp_queue:
                 self.task_queue.put(item)
                 
         return available_tasks
 
     def submit_results(self, submission: ResultSubmission) -> bool:
-        """Process results from a worker node"""
         with self.task_lock:
             if submission.task_id not in self.pending_tasks:
                 logger.warning(f"Results for unknown task: {submission.task_id}")
@@ -149,13 +139,9 @@ class SuperNode:
         return True
     
     def _can_node_handle_task(self, node: NodeInfo, task: Task) -> bool:
-        """Check if a node can handle a specific task"""
-        # For now, check if node supports the required analysis type
-        # This can be extended to check capabilities, load, etc.
-        return True  # Simplified for Week 1
+        return True 
     
     def get_node_status(self) -> Dict:
-        """Get status of all registered nodes"""
         with self.node_lock:
             status = {}
             for node_id, node in self.registered_nodes.items():
@@ -170,7 +156,6 @@ class SuperNode:
             return status
     
     def get_task_status(self) -> Dict:
-        """Get status of all tasks"""
         with self.task_lock:
             return {
                 'pending': len(self.pending_tasks),
@@ -184,14 +169,12 @@ class SuperNode:
         with self.node_lock:
             for node_id, node_info in self.registered_nodes.items():
                 if node_info.is_healthy() and node_info.current_load < 0.8:
-                    # Calculate fitness score
                     score = self._calculate_node_fitness(node_info, task)
                     available_nodes.append((node_id, score))
         
         if not available_nodes:
             return None
         
-        # Sort by fitness score and select the best
         available_nodes.sort(key=lambda x: x[1], reverse=True)
         return available_nodes[0][0]
 
@@ -206,6 +189,5 @@ class SuperNode:
             score += min(node.completed_tasks, 10) * 2
         
         # Factor 3: Task type compatibility
-        # (Add logic based on task.analysis_type and node.capabilities)
         
         return score
