@@ -1,9 +1,4 @@
-### Day 3-4 (Wednesday-Thursday): Implement Supernode
-
 #### 3. `p2p_network/supernode/models.py`
-"""
-Data models for supernode
-"""
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Dict, List, Optional
@@ -22,13 +17,10 @@ class NodeInfo:
     completed_tasks: int = 0
     
     def is_healthy(self) -> bool:
-        """Check if node is healthy based on last heartbeat"""
         current_time = time.time()
-        # Consider node unhealthy if no heartbeat for 90 seconds
         return (current_time - self.last_heartbeat) < 90
     
     def update_heartbeat(self, timestamp: float, load: float = 0.0):
-        """Update node heartbeat information"""
         self.last_heartbeat = timestamp
         self.current_load = load
         self.status = "active" if self.is_healthy() else "inactive"
