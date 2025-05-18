@@ -1,7 +1,4 @@
 # p2p_network/supernode/api.py
-"""
-REST API for supernode
-"""
 from flask import Flask, request, jsonify
 from datetime import datetime
 import logging
@@ -26,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 @app.route('/register', methods=['POST'])
 def register_node():
-    """Register a new worker node"""
     try:
         data = request.json
         registration = NodeRegistration.from_dict(data)
@@ -48,7 +44,6 @@ def register_node():
 
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
-    """Get available tasks for a node"""
     try:
         node_id = request.args.get('node_id')
         max_tasks = int(request.args.get('max_tasks', 3))  # Default to 3 if not provided
@@ -77,7 +72,6 @@ def get_tasks():
     
 @app.route('/heartbeat', methods=['POST'])
 def heartbeat():
-    """Receive heartbeat from worker node"""
     try:
         data = request.json
         heartbeat_msg = Heartbeat.from_dict(data)
@@ -104,13 +98,11 @@ def heartbeat():
 
 @app.route('/results', methods=['POST'])
 def submit_results():
-    """Submit analysis results"""
     try:
         data = request.json
         submission = ResultSubmission.from_dict(data)
         success = supernode.submit_results(submission)
         
-        # Add to blockchain
         if success:
             # Create a record for the blockchain
             blockchain_record = {
@@ -122,7 +114,6 @@ def submit_results():
                 "results": submission.results
             }
             
-            # Add record to blockchain asynchronously
             try:
                 from ..blockchain.blockchain import blockchain
                 blockchain.add_block(blockchain_record)
@@ -151,7 +142,6 @@ def submit_results():
 
 @app.route('/status', methods=['GET'])
 def get_status():
-    """Get supernode status"""
     try:
         node_status = supernode.get_node_status()
         task_status = supernode.get_task_status()
@@ -188,7 +178,6 @@ def get_status():
 
 @app.route('/create_task', methods=['POST'])
 def create_task():
-    """Create a new analysis task"""
     try:
         data = request.json
         required_fields = ['code_url', 'analysis_type', 'deadline']
@@ -206,7 +195,6 @@ def create_task():
             deadline=data['deadline']
         )
         
-        # Add task creation to blockchain
         try:
             from ..blockchain.blockchain import blockchain
             blockchain_record = {
