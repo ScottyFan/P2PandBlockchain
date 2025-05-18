@@ -7,7 +7,6 @@ import logging
 from p2p_network.supernode.api import app
 from p2p_network.worker.worker_node import WorkerNode
 
-# Set up logging to see what's happening
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -15,19 +14,16 @@ logger = logging.getLogger(__name__)
 class TestP2PIntegration(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        """Start supernode server"""
         cls.server_thread = threading.Thread(
             target=lambda: app.run(port=5555, debug=False),
             daemon=True
         )
         cls.server_thread.start()
-        time.sleep(2)  # Wait for server to start
+        time.sleep(2)  
         
         cls.supernode_url = "http://localhost:5555"
     
     def test_multiple_workers(self):
-        """Test multiple workers handling tasks"""
-        # Create 3 worker nodes with faster polling
         workers = []
         for i in range(3):
             worker = WorkerNode(
@@ -35,19 +31,16 @@ class TestP2PIntegration(unittest.TestCase):
                 port=8080 + i,
                 capabilities=["python"]
             )
-            # Make polling faster for tests
-            worker.task_poll_interval = 2  # Poll every 2 seconds instead of 10
-            worker.heartbeat_interval = 5  # Heartbeat every 5 seconds instead of 30
+            worker.task_poll_interval = 2  # Poll every 2 seconds 
+            worker.heartbeat_interval = 5  # Heartbeat every 5 seconds 
             
             worker.register_with_supernode(self.supernode_url)
             worker.start()
             workers.append(worker)
             logger.info(f"Started worker {i}")
         
-        # Give workers time to start up
         time.sleep(3)
         
-        # Create 5 tasks
         task_ids = []
         for i in range(5):
             response = requests.post(
@@ -61,9 +54,7 @@ class TestP2PIntegration(unittest.TestCase):
             task_data = response.json()
             task_ids.append(task_data["task_id"])
             logger.info(f"Created task {i}: {task_data['task_id']}")
-        
-        # Wait for tasks to be processed with periodic status checks
-        max_wait_time = 30  # Maximum 30 seconds
+        max_wait_time = 30  
         start_time = time.time()
         completed = 0
         
@@ -85,7 +76,7 @@ class TestP2PIntegration(unittest.TestCase):
         # Debug output
         logger.info(f"Final status: {final_status}")
         
-        # Clean up - stop all workers
+        # Clean u
         for worker in workers:
             worker.stop()
         
@@ -94,7 +85,6 @@ class TestP2PIntegration(unittest.TestCase):
         self.assertEqual(final_status["tasks"]["pending"], 0)
     
     def test_single_worker_sequential(self):
-        """Test single worker handling multiple tasks sequentially"""
         worker = WorkerNode(
             node_id="test-worker",
             port=8090,
@@ -105,7 +95,6 @@ class TestP2PIntegration(unittest.TestCase):
         worker.register_with_supernode(self.supernode_url)
         worker.start()
         
-        # Create 3 tasks
         task_ids = []
         for i in range(3):
             response = requests.post(
@@ -118,10 +107,8 @@ class TestP2PIntegration(unittest.TestCase):
             )
             task_ids.append(response.json()["task_id"])
         
-        # Wait for completion
         time.sleep(20)
         
-        # Check status
         response = requests.get(f"{self.supernode_url}/status")
         status = response.json()
         
