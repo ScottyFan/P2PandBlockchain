@@ -1,7 +1,4 @@
 # Simple Concurrent Task Test
-"""
-Simple test for concurrent task processing
-"""
 import time
 import logging
 import requests
@@ -29,28 +26,23 @@ def main():
     
     logger.info("Creating concurrent worker...")
     
-    # Create worker with multiple concurrent tasks capability
     worker = WorkerNode(
         node_id="concurrent-worker",
         port=8888,
-        max_concurrent_tasks=5,  # Handle up to 5 concurrent tasks
+        max_concurrent_tasks=5, 
         capabilities=["python", "javascript"]
     )
     
-    # Configure faster polling for test
     worker.task_poll_interval = 2
     worker.heartbeat_interval = 5
     
-    # Register with supernode
     if not worker.register_with_supernode("http://localhost:5000"):
         logger.error("Failed to register worker")
         return
     
-    # Start worker
     worker.start()
     logger.info(f"Worker started with ID: {worker.node_id}")
     
-    # Create 5 tasks
     logger.info("Creating 5 test tasks...")
     task_ids = []
     for i in range(5):
@@ -70,13 +62,11 @@ def main():
         else:
             logger.error(f"Failed to create task {i+1}")
     
-    # Monitor task processing
     logger.info("Monitoring task processing...")
     done = False
     start_time = time.time()
     
-    while not done and (time.time() - start_time) < 60:  # Max 60 seconds
-        # Check status
+    while not done and (time.time() - start_time) < 60: 
         response = requests.get("http://localhost:5000/status")
         if response.status_code == 200:
             status = response.json()
@@ -85,7 +75,6 @@ def main():
             
             logger.info(f"Status: {completed} completed, {pending} pending")
             
-            # Check worker current tasks
             worker_status = worker.get_status()
             logger.info(f"Worker load: {worker_status['load']:.2f}, Active tasks: {len(worker_status['current_tasks'])}")
             
@@ -96,12 +85,10 @@ def main():
         
         time.sleep(3)
     
-    # Final status
     response = requests.get("http://localhost:5000/status")
     final_status = response.json()
     logger.info(f"Final status: {final_status}")
     
-    # Stop worker
     logger.info("Stopping worker...")
     worker.stop()
     
