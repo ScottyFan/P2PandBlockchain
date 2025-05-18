@@ -8,12 +8,10 @@ logger = logging.getLogger(__name__)
 class SQSManager:
     def __init__(self):
         self.sqs = boto3.client('sqs')
-        # Replace with your actual queue URLs from AWS Console
-        self.task_queue_url = "https://sqs.us-east-1.amazonaws.com/your-account-id/analysis-tasks"
-        self.result_queue_url = "https://sqs.us-east-1.amazonaws.com/your-account-id/analysis-results"
+        self.task_queue_url = "https://sqs.us-east-1.amazonaws.com/559050241209/analysis-tasks"
+        self.result_queue_url = "https://sqs.us-east-1.amazonaws.com/559050241209/analysis-results"
         
     def send_task(self, task):
-        """Send a new analysis task to the queue"""
         try:
             response = self.sqs.send_message(
                 QueueUrl=self.task_queue_url,
@@ -26,13 +24,12 @@ class SQSManager:
             raise
     
     def receive_tasks(self, max_messages=10):
-        """Retrieve tasks from the queue"""
         try:
             response = self.sqs.receive_message(
                 QueueUrl=self.task_queue_url,
                 MaxNumberOfMessages=max_messages,
                 WaitTimeSeconds=10,
-                VisibilityTimeout=300  # 5 minutes
+                VisibilityTimeout=300  
             )
             return response.get('Messages', [])
         except Exception as e:
@@ -40,7 +37,6 @@ class SQSManager:
             return []
     
     def send_result(self, result):
-        """Send analysis results to the result queue"""
         try:
             response = self.sqs.send_message(
                 QueueUrl=self.result_queue_url,
@@ -53,7 +49,6 @@ class SQSManager:
             raise
     
     def delete_message(self, queue_url, receipt_handle):
-        """Delete a message after processing"""
         try:
             self.sqs.delete_message(
                 QueueUrl=queue_url,
