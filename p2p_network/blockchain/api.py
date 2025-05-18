@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 @blockchain_api.route('/record', methods=['POST'])
 def add_review_record():
-    """Add a new code review record to the blockchain"""
     try:
         data = request.json
         required_fields = ['review_id', 'commit_id', 'reviewer', 'status']
@@ -44,7 +43,6 @@ def add_review_record():
 
 @blockchain_api.route('/history/<review_id>', methods=['GET'])
 def get_review_history(review_id):
-    """Get the history of a specific review from the blockchain"""
     try:
         blocks = blockchain.get_blocks_by_review_id(review_id)
         
@@ -70,7 +68,6 @@ def get_review_history(review_id):
 
 @blockchain_api.route('/validate', methods=['GET'])
 def validate_chain():
-    """Validate the integrity of the blockchain"""
     try:
         is_valid = blockchain.is_chain_valid()
         
@@ -90,7 +87,6 @@ def validate_chain():
 
 @blockchain_api.route('/blocks', methods=['GET'])
 def get_all_blocks():
-    """Get all blocks in the blockchain"""
     try:
         blocks = blockchain.get_all_blocks()
         
