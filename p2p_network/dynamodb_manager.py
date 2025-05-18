@@ -13,7 +13,6 @@ class DynamoDBManager:
         self.table = self.dynamodb.Table('TasksTable')
         
     def create_task(self, repository, commit_id, analysis_types=None):
-        """Create a new task record"""
         task_id = f"task-{uuid.uuid4().hex[:8]}"
         timestamp = int(time.time())
         
@@ -38,7 +37,6 @@ class DynamoDBManager:
             raise
     
     def update_task_status(self, task_id, status, node_id=None, results=None):
-        """Update task status and results"""
         update_expression = "SET #status = :status"
         expression_values = {
             ':status': status
@@ -74,7 +72,6 @@ class DynamoDBManager:
             raise
     
     def get_task(self, task_id):
-        """Get a task by ID"""
         try:
             response = self.table.get_item(
                 Key={'TaskId': task_id}
@@ -85,7 +82,6 @@ class DynamoDBManager:
             return None
     
     def query_tasks_by_status(self, status, limit=50):
-        """Get tasks by status using the StatusIndex GSI"""
         try:
             response = self.table.query(
                 IndexName='StatusIndex',
@@ -98,7 +94,6 @@ class DynamoDBManager:
             return []
             
     def list_tasks(self, limit=50):
-        """List all tasks, with optional limit"""
         try:
             response = self.table.scan(Limit=limit)
             return response.get('Items', [])
