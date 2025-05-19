@@ -69,18 +69,17 @@ class TestP2PIntegration(unittest.TestCase):
             if completed < 5:
                 time.sleep(2)
         
-        # Final check
+        #final check
         response = requests.get(f"{self.supernode_url}/status")
         final_status = response.json()
         
-        # Debug output
+        #debug output
         logger.info(f"Final status: {final_status}")
         
-        # Clean u
         for worker in workers:
             worker.stop()
         
-        # Now assert
+        #assert
         self.assertEqual(final_status["tasks"]["completed"], 5)
         self.assertEqual(final_status["tasks"]["pending"], 0)
     
@@ -90,7 +89,7 @@ class TestP2PIntegration(unittest.TestCase):
             port=8090,
             capabilities=["python"]
         )
-        worker.task_poll_interval = 1  # Fast polling for test
+        worker.task_poll_interval = 1  
         
         worker.register_with_supernode(self.supernode_url)
         worker.start()
