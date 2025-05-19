@@ -156,7 +156,6 @@ class TaskExecutor:
             return {"tool": "pylint", "error": str(e)}
     
     def _run_flake8(self, code_path: str) -> Dict[str, Any]:
-        """Run flake8 analysis"""
         try:
             cmd = ["flake8", "--format=json", code_path]
             result = subprocess.run(
