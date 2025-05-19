@@ -1,6 +1,3 @@
-"""
-Network utility functions for P2P communication
-"""
 import requests
 import time
 import logging
@@ -99,7 +96,6 @@ def validate_ip_address(ip: str) -> bool:
 
 
 def generate_node_id(ip: str, port: int) -> str:
-    """Generate a unique node ID based on IP and port"""
     import hashlib
     node_string = f"{ip}:{port}"
     return hashlib.sha256(node_string.encode()).hexdigest()[:16]
