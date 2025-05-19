@@ -40,7 +40,7 @@ class TestWorkerNode(unittest.TestCase):
         
         mock_network_client.return_value.post.return_value = mock_response
         
-        # Test registration
+        #test registration
         result = self.worker.register_with_supernode(self.mock_supernode_url)
         self.assertTrue(result)
         self.assertEqual(self.worker.supernode_url, self.mock_supernode_url)
