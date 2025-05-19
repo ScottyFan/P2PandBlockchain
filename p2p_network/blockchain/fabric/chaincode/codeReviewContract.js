@@ -1,16 +1,13 @@
-// codeReviewContract.js
 'use strict';
 
 const { Contract } = require('fabric-contract-api');
 
 class CodeReviewContract extends Contract {
-    // Initialize the ledger
     async initLedger(ctx) {
         console.log('Code Review Contract initialized');
         return true;
     }
     
-    // Record a code review
     async recordReview(ctx, reviewId, commitId, reviewer, timestamp, status) {
         const review = {
             reviewId,
@@ -25,7 +22,6 @@ class CodeReviewContract extends Contract {
         return JSON.stringify(review);
     }
     
-    // Update a review status
     async updateReviewStatus(ctx, reviewId, newStatus) {
         const reviewAsBytes = await ctx.stub.getState(reviewId);
         if (!reviewAsBytes || reviewAsBytes.length === 0) {
@@ -39,7 +35,6 @@ class CodeReviewContract extends Contract {
         return JSON.stringify(review);
     }
     
-    // Query a review by ID
     async queryReview(ctx, reviewId) {
         const reviewAsBytes = await ctx.stub.getState(reviewId);
         if (!reviewAsBytes || reviewAsBytes.length === 0) {
@@ -48,7 +43,6 @@ class CodeReviewContract extends Contract {
         return reviewAsBytes.toString();
     }
     
-    // Get history of a review
     async getReviewHistory(ctx, reviewId) {
         const iterator = await ctx.stub.getHistoryForKey(reviewId);
         const results = [];
