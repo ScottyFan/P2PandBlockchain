@@ -1,6 +1,3 @@
-"""
-Supernode implementation for P2P network
-"""
 import logging
 from queue import Queue, PriorityQueue
 from threading import Lock
@@ -124,12 +121,12 @@ class SuperNode:
                 logger.warning(f"Results from wrong node for task: {submission.task_id}")
                 return False
                 
-            # Move task to completed
+            #move task to completed
             task.mark_completed(submission.results)
             self.completed_tasks[submission.task_id] = task
             del self.pending_tasks[submission.task_id]
             
-            # Update node statistics
+            #update node statistics
             with self.node_lock:
                 if submission.node_id in self.registered_nodes:
                     node = self.registered_nodes[submission.node_id]
@@ -181,13 +178,10 @@ class SuperNode:
     def _calculate_node_fitness(self, node: NodeInfo, task: Task) -> float:
         score = 100.0
         
-        # Factor 1: Current load (lower is better)
         score -= node.current_load * 50
         
-        # Factor 2: Recent performance
         if node.completed_tasks > 0:
             score += min(node.completed_tasks, 10) * 2
         
-        # Factor 3: Task type compatibility
         
         return score
