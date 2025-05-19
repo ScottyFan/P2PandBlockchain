@@ -1,6 +1,3 @@
-"""
-Message format definitions for P2P network communication
-"""
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from typing import List, Dict, Any
