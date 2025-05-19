@@ -14,7 +14,6 @@ from ..blockchain.api import blockchain_api
 app = Flask(__name__)
 supernode = SuperNode()
 
-# Register the blockchain API blueprint
 app.register_blueprint(blockchain_api, url_prefix='/blockchain')
 
 logging.basicConfig(level=logging.INFO)
@@ -46,7 +45,7 @@ def register_node():
 def get_tasks():
     try:
         node_id = request.args.get('node_id')
-        max_tasks = int(request.args.get('max_tasks', 3))  # Default to 3 if not provided
+        max_tasks = int(request.args.get('max_tasks', 3)) 
         
         if not node_id:
             return jsonify({
@@ -104,7 +103,6 @@ def submit_results():
         success = supernode.submit_results(submission)
         
         if success:
-            # Create a record for the blockchain
             blockchain_record = {
                 "review_id": submission.task_id,
                 "commit_id": submission.results.get("commit_id", "unknown"),
@@ -146,7 +144,6 @@ def get_status():
         node_status = supernode.get_node_status()
         task_status = supernode.get_task_status()
         
-        # Add blockchain status
         blockchain_status = {
             "enabled": True,
             "blocks": 0
