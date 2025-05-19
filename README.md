@@ -22,11 +22,4 @@ This project implements a peer-to-peer code review system with:
 
 - Python 3.8+
 - pip
-- Docker (optional)
 
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/your-username/cloud-code-review.git
-cd cloud-code-review
