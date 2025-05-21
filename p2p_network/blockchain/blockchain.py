@@ -1,4 +1,3 @@
-# p2p_network/blockchain/blockchain.py
 import hashlib
 import time
 import json
