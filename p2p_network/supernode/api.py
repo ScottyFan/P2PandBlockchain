@@ -1,4 +1,3 @@
-# p2p_network/supernode/api.py
 from flask import Flask, request, jsonify
 from datetime import datetime
 import logging
