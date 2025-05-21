@@ -1,4 +1,3 @@
-# p2p_network/blockchain/api.py
 from flask import Blueprint, request, jsonify
 import time
 import logging
