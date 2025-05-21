@@ -6,9 +6,8 @@ A distributed code review platform using P2P networking and multi-cloud architec
 
 This project implements a peer-to-peer code review system with:
 - Distributed analysis task execution
-- Multi-cloud support (AWS, Google Cloud, Azure)
+- AWS and Azure
 - Blockchain-based audit trail
-- Automated code quality recommendations
 
 ## Architecture
 
